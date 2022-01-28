@@ -8,6 +8,12 @@
 
 #include "proxy.h"
 
+_Bool isValidIpAddress(char *ipAddress)
+{
+    struct sockaddr_in sa;
+    int result = inet_pton(AF_INET, ipAddress, &(sa.sin_addr));
+    return result > 0;
+}
 
 int clientnegotiate(struct chain * redir, struct clientparam * param, struct sockaddr * addr, unsigned char * hostname){
 	unsigned char *buf;
@@ -159,7 +165,7 @@ int clientnegotiate(struct chain * redir, struct clientparam * param, struct soc
 			buf[0] = 5;
 			buf[1] = 1;
 			buf[2] = 0;
-			if(redir->type == R_SOCKS5P && hostname) {
+			if(redir->type == R_SOCKS5P && hostname && !isValidIpAddress(hostname)) {
 				buf[3] = 3;
 				len = (int)strlen((char *)hostname);
 				if(len > 255) len = 255;
